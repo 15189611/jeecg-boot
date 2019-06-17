@@ -35,7 +35,7 @@ public class Product implements Serializable {
 	/**成本价*/
 	private Integer costPrice;
 	/**是否推荐:0-否,1-是*/
-	private Integer isRecommand;
+	private Integer isRecommend;
 	/**是否热销:0-否,1-是*/
 	private Integer isHot;
 	/**是否新品:0-否,1-是*/

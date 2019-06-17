@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.mall.mapper.UserAuthMapper">
+
+	<delete id="deleteByMainId" parameterType="java.lang.String">
+		DELETE 
+		FROM  t_shop_user_auth 
+		WHERE
+			 user_id = #{id} 		
+	</delete>
+	
+	<select id="selectByMainId" parameterType="java.lang.String" resultType="org.jeecg.modules.mall.entity.UserAuth">
+		SELECT * 
+		FROM  t_shop_user_auth
+		WHERE
+			 user_id = #{id} 		
+	</select>
+
+	<select id="queryByOpenId" parameterType="java.lang.String" resultType="org.jeecg.modules.mall.entity.UserAuth">
+		SELECT *
+		FROM  t_shop_user_auth
+		WHERE
+			 open_id = #{openId}
+	</select>
+</mapper>

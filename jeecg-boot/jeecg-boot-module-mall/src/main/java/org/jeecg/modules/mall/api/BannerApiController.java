@@ -9,7 +9,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
-import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.modules.mall.entity.Banner;
 import org.jeecg.modules.mall.service.IBannerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +44,16 @@ public class BannerApiController {
    @GetMapping(value = "/list")
    public Result<List<Banner>> queryPageList(Banner banner, HttpServletRequest req) {
        Result<List<Banner>> result = new Result<>();
-       List<Banner> pageList = bannerService.queryBanner();
+       banner.setStatus(1);
+       banner.setType(1);
+       QueryWrapper<Banner> queryWrapper = new QueryWrapper<>(banner);
+       queryWrapper.orderByAsc("sort");
+       Page<Banner> page = new Page<>(1, 3);
+       IPage<Banner> pageList = bannerService.page(page, queryWrapper);
        result.setSuccess(true);
-       result.setResult(pageList);
+       pageList.getRecords().forEach(e->e.setPicUrl("http://localhost:8099/jeecg-boot/sys/common/view/"+e.getPicUrl()));
+       result.setResult(pageList.getRecords());
+
        return result;
    }
 
