@@ -93,8 +93,10 @@ public class UserAccountServiceImpl extends ServiceImpl<UserAccountMapper, UserA
 	public String userAuth(UserAccount userAccount, UserAuth userAuth, UserDetail userDetail) {
 		userAccountMapper.insert(userAccount);
 		//外键设置
-		userAuth.setUserId(userAccount.getId());
-		userAuthMapper.updateById(userAuth);
+		if(userAuth!=null) {
+			userAuth.setUserId(userAccount.getId());
+			userAuthMapper.insert(userAuth);
+		}
 
 		userDetail.setUserId(userAccount.getId());
 		userDetailMapper.insert(userDetail);

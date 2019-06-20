@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class WeChatAuthInfo {
 
+    private String code;
     private String openId;
     private String avatarUrl;
     private String city;

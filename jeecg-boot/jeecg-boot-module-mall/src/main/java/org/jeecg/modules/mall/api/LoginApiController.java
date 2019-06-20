@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.util.WeChatUtils;
+import org.jeecg.modules.mall.api.vo.AccountDetailVO;
 import org.jeecg.modules.mall.entity.UserAccount;
 import org.jeecg.modules.mall.entity.UserAuth;
 import org.jeecg.modules.mall.entity.UserDetail;
@@ -34,6 +35,8 @@ import java.util.*;
 public class LoginApiController {
     @Autowired
     private IUserAuthService userAuthService;
+    @Autowired
+    private IUserAccountService userAccountService;
 
    /**
      * 小程序用户登录
@@ -44,28 +47,26 @@ public class LoginApiController {
    @GetMapping(value = "/login")
    public Result login(String code) {
        Result result = new Result<>();
+       result.setSuccess(false);
+       AccountDetailVO accountDetail = new AccountDetailVO();
 
        //用户登录
        Map<String,String> map = WeChatUtils.getOpenId(code);
        UserAuth userAuth=null;
        if(map!=null){
            String openId =  map.get("openid");
-           String sessionKey = map.get("session_key");
            userAuth = userAuthService.queryByOpenId(openId);
-
-           if(userAuth==null){
-               //第一次登陆
-               userAuth = new UserAuth();
-               userAuth.setOpenId(openId);
-               userAuth.setIdentityType(1);
-               userAuth.setCredential(sessionKey);
-               userAuthService.save(userAuth);
+           if(userAuth!=null){
+               UserAccount account = userAccountService.getById(userAuth.getUserId());
+               accountDetail.setAvatar(account.getAvatar());
+               accountDetail.setNickName(account.getNickName());
+               accountDetail.setUserId(account.getId());
+               accountDetail.setOpenId(userAuth.getOpenId());
+               result.setSuccess(true);
+               result.setResult(accountDetail);
            }
        }
-       result.setSuccess(true);
-       Map<String,String> user = new HashMap<>();
-       user.put("openId",userAuth.getOpenId());
-       result.setResult(user);
+       result.setResult(accountDetail);
 
        return result;
    }
