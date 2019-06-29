@@ -13,6 +13,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface JeecgDemoMapper extends BaseMapper<JeecgDemo> {
 
-	public List<JeecgDemo> getDemoByName(@Param("name") String name);
+	List<JeecgDemo> getDemoByName(@Param("name") String name);
 
 }

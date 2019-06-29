@@ -86,6 +86,7 @@ public class WeChatApiController {
                     accountDetail.setAvatar(userAccount.getAvatar());
                     accountDetail.setNickName(userAccount.getNickName());
                     accountDetail.setUserId(userAccount.getId());
+                    accountDetail.setOpenId(userAuth.getOpenId());
                 }
             }
         }

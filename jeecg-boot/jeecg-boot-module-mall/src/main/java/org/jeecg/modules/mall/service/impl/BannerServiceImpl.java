@@ -30,7 +30,6 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
         Banner banner = new Banner();
         banner.setStatus(1);
         QueryWrapper query = new QueryWrapper<>(banner);
-//        query.eq("status",1);
         Page<Banner> page = new Page<Banner>(1, 3);
         IPage<Banner> pageList = bannerMapper.selectPage(page,query);
         return pageList.getRecords();

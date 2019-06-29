@@ -85,5 +85,15 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 //			productMapper.deleteById(id);
 //		}
 //	}
-	
+
+
+	@Override
+	public String getProductPic(String id) {
+		List<Image> list = imageMapper.selectByBusinessIdAndType(id,1);
+		if(list!=null && list.size()>0){
+			Image image = list.get(0);
+			return image.getUrl();
+		}
+		return "";
+	}
 }

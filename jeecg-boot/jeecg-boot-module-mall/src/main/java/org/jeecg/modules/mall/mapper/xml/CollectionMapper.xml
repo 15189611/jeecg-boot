@@ -15,4 +15,11 @@
 		WHERE
 			 product_id = #{id} 		
 	</select>
+
+
+	<select id="queryByUserIdAndProductId" parameterType="java.lang.String" resultType="org.jeecg.modules.mall.entity.bo.CollectionProductBO">
+		select c.id,p.id as productId,p.title,p.selling_price as product_price from t_shop_collection c LEFT JOIN t_shop_product p on c.product_id = p.id
+		WHERE
+			 c.user_id = #{userId}
+	</select>
 </mapper>

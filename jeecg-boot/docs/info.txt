@@ -1,0 +1,6 @@
+root
+a1234567.
+120.27.218.186
+
+
+grant all on app_shop.* to 'tea_shop'@'%' identified by '46MjNCnLDRV6Qub8';

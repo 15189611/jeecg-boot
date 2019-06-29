@@ -2,6 +2,7 @@ package org.jeecg.modules.mall.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.modules.mall.entity.Collection;
+import org.jeecg.modules.mall.entity.bo.CollectionProductBO;
 
 import java.util.List;
 
@@ -13,5 +14,12 @@ import java.util.List;
  */
 public interface ICollectionService extends IService<Collection> {
 
-	public List<Collection> selectByMainId(String mainId);
+
+	List<Collection> selectByMainId(String mainId);
+
+	Collection queryByUserIdAndProductId(String userId,String productId);
+
+	List<CollectionProductBO> queryCollectionProductByUserId(String userId);
+
+
 }

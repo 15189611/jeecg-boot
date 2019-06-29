@@ -1,0 +1,2 @@
+ALTER TABLE `t_shop_product`
+ADD COLUMN `create_time`  datetime NULL AFTER `sells`;

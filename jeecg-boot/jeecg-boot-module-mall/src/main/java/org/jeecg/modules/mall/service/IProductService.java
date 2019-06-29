@@ -37,5 +37,7 @@ public interface IProductService extends IService<Product> {
 	 * 批量删除一对多
 	 */
 //	public void delBatchMain(Collection<? extends Serializable> idList);
+
+	String getProductPic(String id);
 	
 }
