@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.mall.mapper.CartMapper">
+
+	<!-- 根据部门Id查询 -->
+	<select id="queryPageForUser" resultType="org.jeecg.modules.mall.entity.bo.CartProductBO">
+
+		SELECT
+		c.id,
+		c.user_id,
+		c.product_id,
+		c.num,
+		p.title as product_name,
+		p.status,
+		p.selling_price
+		FROM
+		t_shop_cart c
+		LEFT JOIN t_shop_product p ON c.product_id = p.id
+		where c.user_id = #{userId}
+
+	</select>
+
+
+	<select id="queryListByUserIdAndProductIds" resultType="org.jeecg.modules.mall.entity.bo.CartProductBO">
+		SELECT
+		c.id,
+		c.user_id,
+		c.product_id,
+		c.num,
+		p.title as product_name,
+		p.status,
+		p.selling_price
+		FROM
+		t_shop_cart c
+		LEFT JOIN t_shop_product p ON c.product_id = p.id
+		where c.user_id = #{userId}
+		<if test="produceIdList != null and produceIdList.size() >  0" >
+			and  c.product_id IN
+			<foreach item="id" index="index" collection="produceIdList"
+					 open="(" separator="," close=")">
+				#{id}
+			</foreach>
+		</if>
+	</select>
+
+	<select id="queryListByUserIdAndIds" resultType="org.jeecg.modules.mall.entity.bo.CartProductBO">
+		SELECT
+		c.id,
+		c.user_id,
+		c.product_id,
+		c.num,
+		p.title as product_name,
+		p.status,
+		p.selling_price
+		FROM
+		t_shop_cart c
+		LEFT JOIN t_shop_product p ON c.product_id = p.id
+		where c.user_id = #{userId}
+		<if test="idList != null and idList.size() >  0" >
+			and  c.id IN
+			<foreach item="id" index="index" collection="idList"
+					 open="(" separator="," close=")">
+				#{id}
+			</foreach>
+		</if>
+	</select>
+</mapper>

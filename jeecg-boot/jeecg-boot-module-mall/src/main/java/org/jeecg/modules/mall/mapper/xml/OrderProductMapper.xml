@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.mall.mapper.OrderProductMapper">
+
+	<delete id="deleteByMainId" parameterType="java.lang.String">
+		DELETE 
+		FROM  t_shop_order_product 
+		WHERE
+			 order_id = #{id}
+	</delete>
+	
+	<select id="selectByMainId" parameterType="java.lang.String" resultType="org.jeecg.modules.mall.entity.bo.OrderProductBO">
+		SELECT op.*,i.url AS pic_url FROM (
+		 	SELECT o.*,p.title FROM  t_shop_order_product o LEFT JOIN t_shop_product p on o.product_id=p.id ) OP
+		LEFT JOIN t_image i on (op.product_id = i.business_id) and i.type=3
+		WHERE
+			 op.order_id = #{id}
+	</select>
+</mapper>

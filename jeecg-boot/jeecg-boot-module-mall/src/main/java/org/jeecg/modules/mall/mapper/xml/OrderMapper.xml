@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.mall.mapper.OrderMapper">
+
+
+	<select id="queryOrderByUserIdAndStatus" resultType="org.jeecg.modules.mall.entity.Order">
+		select t.* from t_shop_order t
+		where t.user_id=#{userId}
+		<if test="status !=null ">
+			and t.status = #{status}
+		</if>
+
+			<if test="statusList != null and statusList.size() >  0" >
+				and  t.status IN
+				<foreach item="status" index="index" collection="statusList"
+						 open="(" separator="," close=")">
+					#{status}
+				</foreach>
+			</if>
+
+	</select>
+
+</mapper>
