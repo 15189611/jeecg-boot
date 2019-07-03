@@ -71,6 +71,7 @@ public class CartApiController {
             Cart cart =new Cart();
             BeanUtils.copyProperties(addCart, cart);
             cartService.save(cart);
+            result.setCode(0);
             result.success("添加成功！");
         } catch (Exception e) {
             log.error(e.getMessage(),e);
@@ -95,7 +96,8 @@ public class CartApiController {
         }else {
             boolean ok = cartService.removeById(req.getCartId());
             if(ok) {
-                result.success("删除成功!");
+                result.setCode(0);
+                result.setMessage("删除成功!");
             }
         }
         return result;

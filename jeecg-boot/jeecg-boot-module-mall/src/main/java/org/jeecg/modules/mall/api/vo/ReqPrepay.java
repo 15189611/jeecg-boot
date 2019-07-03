@@ -8,4 +8,6 @@ public class ReqPrepay {
     private String openId;
     private String orderId;
     private String appId;
+    private String payment_type;//3
+    private String trade_type;// 'JSAPI_WXA',
 }

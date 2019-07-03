@@ -7,9 +7,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
-import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.modules.mall.api.vo.ProductDetailVO;
 import org.jeecg.modules.mall.api.vo.ProductListVO;
+import org.jeecg.modules.mall.config.MallConfig;
 import org.jeecg.modules.mall.entity.Product;
 import org.jeecg.modules.mall.service.IProductService;
 import org.jeecg.modules.support.entity.Image;
@@ -37,6 +37,8 @@ public class ProductApiController {
     private IProductService productService;
     @Autowired
     private IImageService imageService;
+    @Autowired
+    private MallConfig mallConfig;
 
     /**
      * 分页列表查询
@@ -64,7 +66,7 @@ public class ProductApiController {
             List<Image> imageList = queryImageListByMainId(vo.getId(),1);
             if(imageList!=null && imageList.size()>0){
                 String url = imageList.get(0).getUrl();
-                vo.setPicUrl("http://localhost:8099/jeecg-boot/sys/common/view/"+url);
+                vo.setPicUrl(mallConfig.getPicPrefix()+url);
             }
             listVO.add(vo);
         }
@@ -90,13 +92,13 @@ public class ProductApiController {
         List<Image> mainImageList = queryImageListByMainId(vo.getId(),1);
         if(!mainImageList.isEmpty()){
             vo.setMainPic(new ArrayList<>());
-            mainImageList.forEach(e->vo.getMainPic().add("http://localhost:8099/jeecg-boot/sys/common/view/"+e.getUrl()));
+            mainImageList.forEach(e->vo.getMainPic().add(mallConfig.getPicPrefix() + e.getUrl()));
         }
 
         List<Image> subImageList = queryImageListByMainId(vo.getId(),2);
         if(!subImageList.isEmpty()) {
             vo.setSubPic(new ArrayList<>());
-            subImageList.forEach(e -> vo.getSubPic().add("http://localhost:8099/jeecg-boot/sys/common/view/" + e.getUrl()));
+            subImageList.forEach(e -> vo.getSubPic().add(mallConfig.getPicPrefix() + e.getUrl()));
         }
 
 

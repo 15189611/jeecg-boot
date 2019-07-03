@@ -22,7 +22,7 @@ public interface CollectionMapper extends BaseMapper<Collection> {
 	List<Collection> selectByMainId(String mainId);
 
 	@Select("select * from t_shop_collection where user_id=#{userId} and product_id=#{productId}")
-	Collection queryByUserIdAndProductId(@Param("userId") String userId,@Param("productId")  String productId);
+	Collection queryCollectionByUserIdAndProductId(@Param("userId") String userId,@Param("productId")  String productId);
 
 	List<CollectionProductBO> queryByUserIdAndProductId(String userId);
 }

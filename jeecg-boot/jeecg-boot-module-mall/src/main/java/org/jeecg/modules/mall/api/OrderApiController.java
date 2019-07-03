@@ -1,5 +1,6 @@
 package org.jeecg.modules.mall.api;
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.ApiOperation;
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.util.SerialNo;
 import org.jeecg.modules.mall.api.vo.*;
+import org.jeecg.modules.mall.config.MallConfig;
 import org.jeecg.modules.mall.entity.*;
 import org.jeecg.modules.mall.entity.bo.CartProductBO;
 import org.jeecg.modules.mall.entity.bo.OrderProductBO;
@@ -41,6 +43,8 @@ public class OrderApiController {
    private IAddressService addressService;
    @Autowired
    private ICartService cartService;
+   @Autowired
+   private MallConfig mallConfig;
 
    /**
      * 分页列表查询
@@ -72,6 +76,7 @@ public class OrderApiController {
            BeanUtils.copyProperties(orderDO, orderInfoVO);
            //加载订单商品信息
            List<OrderProductBO> orderProductBOList = orderProductService.selectByMainId(orderDO.getId());
+           orderProductBOList.forEach(e->e.setPicUrl(mallConfig.getPicPrefix()+e.getPicUrl()));
            orderInfoVO.setProductList(orderProductBOList);
            orderInfoVOList.add(orderInfoVO);
        }
@@ -81,7 +86,7 @@ public class OrderApiController {
    }
 
    /**
-     *   添加
+    *   添加
     * @param addOrder
     * @return
     */
@@ -91,7 +96,8 @@ public class OrderApiController {
 
        try {
            String productIdDec= URLDecoder.decode(addOrder.getProductId(),"UTF-8");
-           addOrder.setProductId(productIdDec);
+           String ss = JSON.parseObject(productIdDec,String.class);
+           addOrder.setProductId(ss);
        } catch (UnsupportedEncodingException e) {
            log.error("",e);
        }
@@ -111,8 +117,7 @@ public class OrderApiController {
            List<String> cartProductIds = new ArrayList<>();
 
            String[] productIds = productId.split(",");
-           Arrays.asList(productIds);
-           List<CartProductBO> cartProduct = cartService.queryListByUserIdAndProductIds(addOrder.getUserId(),Arrays.asList(productIds));
+           List<CartProductBO> cartProduct = cartService.queryListByUserIdAndIds(addOrder.getUserId(),Arrays.asList(productIds));
            List<OrderProduct> itemList = new ArrayList();
            for (CartProductBO bo:cartProduct){
                OrderProduct orderProduct = new OrderProduct();
@@ -140,6 +145,7 @@ public class OrderApiController {
            BeanUtils.copyProperties(orderDO, orderInfoVO);
            //加载订单商品信息
            List<OrderProductBO> orderProductBOList = orderProductService.selectByMainId(orderId);
+           orderProductBOList.forEach(e-> e.setPicUrl(mallConfig.getPicPrefix()+e.getPicUrl()));
            orderInfoVO.setProductList(orderProductBOList);
 
            result.setResult(orderInfoVO);
@@ -162,7 +168,6 @@ public class OrderApiController {
         Result<RespGetOrderPayInfoVO> result = new Result();
 
         try {
-
             //重新加载数据库订单数据
             RespGetOrderPayInfoVO resp =  new RespGetOrderPayInfoVO();
             Order orderDO =  orderService.getById(req.getOrderId());

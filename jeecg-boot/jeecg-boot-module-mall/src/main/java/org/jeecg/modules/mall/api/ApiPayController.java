@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -39,7 +42,7 @@ public class ApiPayController {
     /**
      * 获取支付的请求参数
      */
-    @RequestMapping("prepay")
+    @PostMapping("prepay")
     public Result payPrepay(ReqPrepay prepay , HttpServletRequest req) {
         //
         String ip = IPUtils.getIpAddr(req);
@@ -58,7 +61,7 @@ public class ApiPayController {
             Map<Object, Object> resultObj = new TreeMap();
 
             try {
-                Map<Object, Object> parame = new TreeMap<Object, Object>();
+                Map<Object, Object> parame = new TreeMap();
                 parame.put("appid", weChatConfig.getAppId());
                 // 商家账号。
                 parame.put("mch_id", weChatConfig.getMchId());
@@ -91,6 +94,7 @@ public class ApiPayController {
                 String return_msg = MapUtils.getString("return_msg", resultUn);
                 //
                 if (return_code.equalsIgnoreCase("FAIL")) {
+                    log.error(return_msg);
                     return Result.error(1, "支付失败," + return_msg);
                 } else if (return_code.equalsIgnoreCase("SUCCESS")) {
                     // 返回数据
@@ -99,11 +103,12 @@ public class ApiPayController {
                     if (result_code.equalsIgnoreCase("FAIL")) {
                         return Result.error(1, "支付失败," + err_code_des);
                     } else if (result_code.equalsIgnoreCase("SUCCESS")) {
+
                         String prepay_id = MapUtils.getString("prepay_id", resultUn);
                         // 先生成paySign 参考https://pay.weixin.qq.com/wiki/doc/api/wxa/wxa_api.php?chapter=7_7&index=5
                         resultObj.put("appId", weChatConfig.getAppId());
-                        resultObj.put("timeStamp", DateUtils.getTimestamp());
-                        resultObj.put("nonceStr", nonceStr);
+                        resultObj.put("timeStamp", Long.valueOf(System.currentTimeMillis()).toString());
+                        resultObj.put("nonceStr",  CharUtil.getRandomString(32));
                         resultObj.put("package", "prepay_id=" + prepay_id);
                         resultObj.put("signType", "MD5");
                         String paySign = WeChatUtils.arraySign(resultObj, weChatConfig.getPaySignKey());
@@ -111,12 +116,14 @@ public class ApiPayController {
                         // 业务处理
                         // 付款中
                         Order orderDO = new Order();
-                        orderDO.setPayStatus(1);
+                        orderDO.setPayStatus(1);//1付款中
                         orderDO.setId(order.getId());
                         orderService.updateById(order);
                         Result result =new Result();
+                        result.setCode(0);
                         result.setSuccess(true);
-                        return Result.ok("微信统一订单下单成功");
+                        result.setResult(resultObj);
+                        return result;
                     }
                 }
             } catch (Exception e) {
@@ -198,56 +205,54 @@ public class ApiPayController {
 //        return toResponsFail("查询失败，未知错误");
 //    }
 
-//    /**
-//     * 微信订单回调接口
-//     *
-//     * @return
-//     */
-//    @RequestMapping(value = "/notify", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
-//    @ResponseBody
-//    public void notify(HttpServletRequest request, HttpServletResponse response) {
-//        try {
-//            request.setCharacterEncoding("UTF-8");
-//            response.setCharacterEncoding("UTF-8");
-//            response.setContentType("text/html;charset=UTF-8");
-//            response.setHeader("Access-Control-Allow-Origin", "*");
-//            InputStream in = request.getInputStream();
-//            ByteArrayOutputStream out = new ByteArrayOutputStream();
-//            byte[] buffer = new byte[1024];
-//            int len = 0;
-//            while ((len = in.read(buffer)) != -1) {
-//                out.write(buffer, 0, len);
-//            }
-//            out.close();
-//            in.close();
-//            //xml数据
-//            String reponseXml = new String(out.toByteArray(), "utf-8");
-//
+    /**
+     * 微信订单回调接口
+     *
+     * @return
+     */
+    @RequestMapping(value = "/notify", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+    @ResponseBody
+    public void notify(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("text/html;charset=UTF-8");
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            InputStream in = request.getInputStream();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len = 0;
+            while ((len = in.read(buffer)) != -1) {
+                out.write(buffer, 0, len);
+            }
+            out.close();
+            in.close();
+            //xml数据
+            String reponseXml = new String(out.toByteArray(), "utf-8");
+
 //            WechatRefundApiResult result = (WechatRefundApiResult) XmlUtil.xmlStrToBean(reponseXml, WechatRefundApiResult.class);
 //            String result_code = result.getResult_code();
 //            if (result_code.equalsIgnoreCase("FAIL")) {
 //                //订单编号
 //                String out_trade_no = result.getOut_trade_no();
-//                logger.error("订单" + out_trade_no + "支付失败");
+//                log.error("订单" + out_trade_no + "支付失败");
 //                response.getWriter().write(setXml("SUCCESS", "OK"));
 //            } else if (result_code.equalsIgnoreCase("SUCCESS")) {
 //                //订单编号
 //                String out_trade_no = result.getOut_trade_no();
-//                logger.error("订单" + out_trade_no + "支付成功");
+//                log.error("订单" + out_trade_no + "支付成功");
 //                // 业务处理
 //                Order orderInfo = orderService.queryObject(Integer.valueOf(out_trade_no));
-//                orderInfo.setPay_status(2);
-//                orderInfo.setOrder_status(201);
-//                orderInfo.setShipping_status(0);
-//                orderInfo.setPay_time(new Date());
-//                orderService.update(orderInfo);
+//                orderInfo.setPayStatus(2);//付款成功
+//                orderInfo.setStatus(3);//待发货
+//                orderService.updateById(orderInfo);
 //                response.getWriter().write(setXml("SUCCESS", "OK"));
 //            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return;
-//        }
-//    }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
 
 //    /**
 //     * 订单退款请求

@@ -29,7 +29,7 @@ public class CollectionServiceImpl extends ServiceImpl<CollectionMapper, Collect
 
 	@Override
 	public Collection queryByUserIdAndProductId(String userId, String productId) {
-		return collectionMapper.queryByUserIdAndProductId(userId,productId);
+		return collectionMapper.queryCollectionByUserIdAndProductId(userId,productId);
 	}
 
 	@Override
