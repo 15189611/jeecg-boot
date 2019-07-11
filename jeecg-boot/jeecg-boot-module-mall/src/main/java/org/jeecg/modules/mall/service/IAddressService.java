@@ -13,4 +13,8 @@ public interface IAddressService extends IService<Address> {
 
 
     Address queryUserDefaultAddress(String userId);
+
+    boolean setDefaultAddress(Address address);
+
+
 }

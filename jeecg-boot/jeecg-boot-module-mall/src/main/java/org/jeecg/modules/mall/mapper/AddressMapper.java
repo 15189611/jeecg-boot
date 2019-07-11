@@ -1,8 +1,6 @@
 package org.jeecg.modules.mall.mapper;
 
-import java.util.List;
 
-import org.apache.ibatis.annotations.Param;
 import org.jeecg.modules.mall.entity.Address;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 

@@ -31,47 +31,48 @@ public class Address {
 	/**ID*/
 	@TableId(type = IdType.UUID)
     @ApiModelProperty(value = "ID")
-	private java.lang.String id;
+	private String id;
 	/**用户ID*/
 	@Excel(name = "用户ID", width = 15)
     @ApiModelProperty(value = "用户ID")
-	private java.lang.String userId;
+	private String userId;
 	/**默认收获地址: 0/非默认,1/默认*/
 	@Excel(name = "默认收获地址: 0/非默认,1/默认", width = 15)
     @ApiModelProperty(value = "默认收获地址: 0/非默认,1/默认")
-	private java.lang.Integer isDefault;
+	private Integer isDefault;
 	/**收货人*/
 	@Excel(name = "收货人", width = 15)
     @ApiModelProperty(value = "收货人")
-	private java.lang.String consignee;
+	private String consignee;
 	/**收货人手机*/
 	@Excel(name = "收货人手机", width = 15)
     @ApiModelProperty(value = "收货人手机")
-	private java.lang.String mobile;
+	private String mobile;
 	/**邮编*/
 	@Excel(name = "邮编", width = 15)
     @ApiModelProperty(value = "邮编")
-	private java.lang.String zipCode;
+	private String zipCode;
 	/**省份*/
 	@Excel(name = "省份", width = 15)
     @ApiModelProperty(value = "省份")
-	private java.lang.String provinceName;
+	private String provinceName;
 	/**地市*/
 	@Excel(name = "地市", width = 15)
     @ApiModelProperty(value = "地市")
-	private java.lang.String cityName;
+	private String cityName;
 	/**县区*/
 	@Excel(name = "县区", width = 15)
     @ApiModelProperty(value = "县区")
-	private java.lang.String districtName;
+	private String districtName;
+	private String area;
 	/**详细地址*/
 	@Excel(name = "详细地址", width = 15)
     @ApiModelProperty(value = "详细地址")
-	private java.lang.String address;
+	private String address;
 	/**创建人*/
 	@Excel(name = "创建人", width = 15)
     @ApiModelProperty(value = "创建人")
-	private java.lang.String createBy;
+	private String createBy;
 	/**创建时间*/
 	@Excel(name = "创建时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
@@ -81,7 +82,7 @@ public class Address {
 	/**修改人*/
 	@Excel(name = "修改人", width = 15)
     @ApiModelProperty(value = "修改人")
-	private java.lang.String updateBy;
+	private String updateBy;
 	/**修改时间*/
 	@Excel(name = "修改时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")

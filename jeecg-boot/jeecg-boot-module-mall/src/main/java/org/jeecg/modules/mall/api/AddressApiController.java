@@ -6,10 +6,18 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
+import org.jeecg.modules.mall.api.vo.DefaultAddress;
+import org.jeecg.modules.mall.api.vo.QueryAddress;
+import org.jeecg.modules.mall.api.vo.ReqAddAddress;
+import org.jeecg.modules.mall.api.vo.ReqRemoveAddress;
 import org.jeecg.modules.mall.entity.Address;
 import org.jeecg.modules.mall.service.IAddressService;
+import org.jeecg.modules.support.entity.Area;
+import org.jeecg.modules.support.service.IAreaService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +37,8 @@ import java.util.List;
 public class AddressApiController {
    @Autowired
    private IAddressService addressService;
+   @Autowired
+   private IAreaService areaService;
 
    /**
      * 分页列表查询
@@ -37,8 +47,6 @@ public class AddressApiController {
     * @param pageSize
     * @return
     */
-   @AutoLog(value = "收获地址-分页列表查询")
-   @ApiOperation(value="收获地址-分页列表查询", notes="收获地址-分页列表查询")
    @PostMapping(value = "/list")
    public Result<List<Address>> queryPageList(Address address,
                                               @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
@@ -53,18 +61,38 @@ public class AddressApiController {
    }
 
    /**
-     *   添加
-    * @param address
+    *   添加
+    * @param req
     * @return
     */
-   @AutoLog(value = "收获地址-添加")
-   @ApiOperation(value="收获地址-添加", notes="收获地址-添加")
    @PostMapping(value = "/add")
-   public Result<Address> add(@RequestBody Address address) {
-       Result<Address> result = new Result<Address>();
+   public Result<Address> add(ReqAddAddress req) {
+       Result<Address> result = new Result();
        try {
-           addressService.save(address);
-           result.success("添加成功！");
+           Address address = new Address();
+           if("edit".equals(req.getAction())){
+               address = addressService.getById(req.getAddressId());
+           }
+           BeanUtils.copyProperties(req, address);
+
+           Address defaultAddress = addressService.queryUserDefaultAddress(req.getUserId());
+           if(defaultAddress!=null){
+               address.setIsDefault(0);
+           }else{
+               address.setIsDefault(1);
+           }
+           Area area = areaService.getById(req.getDistrictCode());
+           address.setProvinceName(req.getProvinceCode());
+           address.setCityName(req.getCityCode());
+           address.setDistrictName(req.getDistrictCode());
+           address.setArea(area.getProvinceName()+area.getCityName()+area.getAreaName());
+           address.setAddress(req.getAddress());
+           if("edit".equals(req.getAction())){
+               addressService.updateById(address);
+           }else{
+               addressService.save(address);
+           }
+           result.setCode(0);
        } catch (Exception e) {
            log.error(e.getMessage(),e);
            result.error500("操作失败");
@@ -98,57 +126,47 @@ public class AddressApiController {
 
    /**
      *   通过id删除
-    * @param id
+    * @param req
     * @return
     */
-   @AutoLog(value = "收获地址-通过id删除")
-   @ApiOperation(value="收获地址-通过id删除", notes="收获地址-通过id删除")
-   @DeleteMapping(value = "/delete")
-   public Result<Address> delete(@RequestParam(name="id",required=true) String id) {
+   @PostMapping(value = "/remove")
+   public Result<Address> delete(ReqRemoveAddress req) {
        Result<Address> result = new Result<Address>();
-       Address address = addressService.getById(id);
+       Address address = addressService.getById(req.getAddressId());
        if(address==null) {
            result.error500("未找到对应实体");
        }else {
-           boolean ok = addressService.removeById(id);
-           if(ok) {
-               result.success("删除成功!");
+           if(address.getUserId().equals(req.getUserId())){
+               boolean ok = addressService.removeById(address.getId());
+               if(ok) {
+                   result.success("删除成功!");
+               }
            }
        }
-
        return result;
    }
 
-   /**
-     *  批量删除
-    * @param ids
-    * @return
-    */
-   @AutoLog(value = "收获地址-批量删除")
-   @ApiOperation(value="收获地址-批量删除", notes="收获地址-批量删除")
-   @DeleteMapping(value = "/deleteBatch")
-   public Result<Address> deleteBatch(@RequestParam(name="ids",required=true) String ids) {
-       Result<Address> result = new Result<Address>();
-       if(ids==null || "".equals(ids.trim())) {
-           result.error500("参数不识别！");
-       }else {
-           this.addressService.removeByIds(Arrays.asList(ids.split(",")));
-           result.success("删除成功!");
-       }
-       return result;
-   }
 
    /**
      * 通过id查询
-    * @param id
+    * @param
     * @return
     */
-   @AutoLog(value = "收获地址-通过id查询")
-   @ApiOperation(value="收获地址-通过id查询", notes="收获地址-通过id查询")
-   @GetMapping(value = "/queryById")
-   public Result<Address> queryById(@RequestParam(name="id",required=true) String id) {
-       Result<Address> result = new Result<Address>();
-       Address address = addressService.getById(id);
+   @PostMapping(value = "/queryById")
+   public Result queryById(QueryAddress query){
+       Result result = new Result();
+       Address address=null;
+       if(StringUtils.isNotEmpty(query.getAddressId())&& !"undefined".equals(query.getAddressId())){
+           //返回地址
+           address = addressService.getById(query.getAddressId());
+           if(! query.getUserId().equals(address.getUserId())){
+               address=null;
+           }
+       }else{
+           //获取用户默认地址信息
+            address = addressService.queryUserDefaultAddress(query.getUserId());
+       }
+
        if(address==null) {
            result.error500("未找到对应实体");
        }else {
@@ -157,5 +175,28 @@ public class AddressApiController {
        }
        return result;
    }
+
+
+    /**
+     * 设置默认地址
+     * @param address
+     * @return
+     */
+    @PostMapping(value = "/default")
+    public Result setDefault(DefaultAddress address) {
+        Result result = new Result();
+
+        Address dto = addressService.getById(address.getAddressId());
+        if(dto==null || !dto.getUserId().equals(address.getUserId())){
+            result.setCode(1);
+            result.setMessage("设置失败！");
+            return result;
+        }
+        addressService.setDefaultAddress(dto);
+        result.setCode(0);
+        result.setMessage("设置成功");
+        result.setSuccess(true);
+        return result;
+    }
 
 }
