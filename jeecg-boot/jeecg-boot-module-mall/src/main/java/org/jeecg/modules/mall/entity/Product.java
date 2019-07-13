@@ -7,6 +7,7 @@ import lombok.Data;
 import org.jeecg.common.aspect.annotation.Dict;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @Description: 商品信息
@@ -52,6 +53,7 @@ public class Product implements Serializable {
 	private Integer inventory;
 	/**销量*/
 	private Integer sells;
+	private Date onShelvesTime;
 	/**状态:1-上架,0-下架*/
 	@Dict(dicCode = "product_status")
 	private Integer status;
