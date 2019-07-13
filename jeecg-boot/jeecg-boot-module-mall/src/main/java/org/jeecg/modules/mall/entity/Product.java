@@ -43,12 +43,6 @@ public class Product implements Serializable {
 	private Integer isNew;
 	/**是否免邮:0-否,1-是*/
 	private Integer isFree;
-	/**重量*/
-	private Double weight;
-	/**尺寸*/
-	private Double volume;
-	/**尺寸单位*/
-	private String volType;
 	/**库存*/
 	private Integer inventory;
 	/**销量*/

@@ -10,7 +10,9 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.mall.entity.Collection;
 import org.jeecg.modules.mall.entity.Product;
+import org.jeecg.modules.mall.entity.ProductDetail;
 import org.jeecg.modules.mall.service.ICollectionService;
+import org.jeecg.modules.mall.service.IProductDetailService;
 import org.jeecg.modules.mall.service.IProductService;
 import org.jeecg.modules.mall.vo.ProductPage;
 import org.jeecg.modules.support.entity.Image;
@@ -51,6 +53,8 @@ public class ProductController {
    private IProductService productService;
    @Autowired
    private IImageService imageService;
+   @Autowired
+   private IProductDetailService productDetailService;
    @Autowired
    private ICollectionService collectionService;
 
@@ -401,6 +405,120 @@ public class ProductController {
        }
        return result;
    }
+
+    /**
+     * 通过主表id查询商品详细信息
+     * @param mainId
+     * @return
+     */
+    @GetMapping(value = "/listProductDetailByMainId")
+    public Result<List<ProductDetail>> queryProductDetailListByMainId(@RequestParam(name="mainId",required=false) String mainId) {
+        Result<List<ProductDetail>> result = new Result();
+        List<ProductDetail> productDetailList = new ArrayList<>();
+        if (mainId != null) {
+            ProductDetail detail = productDetailService.selectByMainId(mainId);
+            productDetailList.add(detail);
+            result.setResult(productDetailList);
+            result.setSuccess(true);
+            return result;
+        }else return null;
+    }
+    /**
+     * 添加商品详细信息
+     *
+     * @param productDetail
+     * @return
+     */
+    @PostMapping(value = "/addProductDetail")
+    public Result<ProductDetail> addProductDetail(@RequestBody ProductDetail productDetail) {
+        Result<ProductDetail> result = new Result<>();
+        try {
+            boolean ok = productDetailService.save(productDetail);
+            if (ok) {
+                result.setSuccess(true);
+                result.setMessage("添加商品详细信息成功.");
+            } else {
+                result.setSuccess(false);
+                result.setMessage("添加商品详细信息失败!");
+            }
+            return result;
+        } catch (Exception e) {
+            e.fillInStackTrace();
+            result.setSuccess(false);
+            result.setMessage("添加商品详细信息过程中出现了异常: " + e.getMessage());
+            return result;
+        }
+    }
+
+    /**
+     * 编辑商品详细信息
+     *
+     * @param productDetail
+     * @return
+     */
+    @PutMapping("/editProductDetail")
+    public Result<ProductDetail> editProductDetail(@RequestBody ProductDetail productDetail) {
+        Result<ProductDetail> result = new Result<>();
+        try {
+            boolean ok = productDetailService.updateById(productDetail);
+            if (ok) {
+                result.setSuccess(true);
+                result.setMessage("更新商品详细信息成功.");
+            } else {
+                result.setSuccess(false);
+                result.setMessage("更新商品详细信息失败!");
+            }
+            return result;
+        } catch (Exception e) {
+            result.setSuccess(false);
+            result.setMessage("更新数据过程中出现异常啦: " + e.getMessage());
+            return result;
+        }
+    }
+
+    /**
+     * 通过id删除商品详细信息
+     *
+     * @param id
+     * @return
+     */
+    @DeleteMapping(value = "/deleteProductDetail")
+    public Result<ProductDetail> deleteProductDetail(@RequestParam(name = "id", required = true) String id) {
+        Result<ProductDetail> result = new Result<>();
+        try {
+            boolean ok = productDetailService.removeById(id);
+            if (ok) {
+                result.setSuccess(true);
+                result.setMessage("删除商品详细信息成功.");
+            } else {
+                result.setSuccess(false);
+                result.setMessage("删除商品详细信息失败!");
+            }
+            return result;
+        } catch (Exception e) {
+            result.setSuccess(false);
+            result.setMessage("删除商品详细信息过程中出现异常啦: " + e.getMessage());
+            return result;
+        }
+    }
+
+    /**
+     * 批量删除商品详细信息
+     *
+     * @param ids
+     * @return
+     */
+    @DeleteMapping(value = "/deleteBatchProductDetail")
+    public Result<ProductDetail> deleteBatchProductDetail(@RequestParam(name = "ids", required = true) String ids) {
+        Result<ProductDetail> result = new Result<ProductDetail>();
+        if (ids == null || "".equals(ids.trim())) {
+            result.error500("参数不识别！");
+        } else {
+            this.productDetailService.removeByIds(Arrays.asList(ids.split(",")));
+            result.success("删除成功!");
+        }
+        return result;
+    }
 
 
    /**

@@ -9,11 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.util.oConvertUtils;
-import org.jeecg.modules.mall.api.vo.ProductDetailVO;
+import org.jeecg.modules.mall.api.vo.ProductVO;
 import org.jeecg.modules.mall.api.vo.ProductListVO;
 import org.jeecg.modules.mall.api.vo.ReqProductListByCategory;
 import org.jeecg.modules.mall.config.MallConfig;
 import org.jeecg.modules.mall.entity.Product;
+import org.jeecg.modules.mall.entity.ProductDetail;
+import org.jeecg.modules.mall.service.IProductDetailService;
 import org.jeecg.modules.mall.service.IProductService;
 import org.jeecg.modules.support.entity.Image;
 import org.jeecg.modules.support.service.IImageService;
@@ -38,6 +40,8 @@ import java.util.List;
 public class ProductApiController {
     @Autowired
     private IProductService productService;
+    @Autowired
+    private IProductDetailService productDetailService;
     @Autowired
     private IImageService imageService;
     @Autowired
@@ -86,12 +90,15 @@ public class ProductApiController {
      * @return
      */
     @PostMapping(value = "/detail")
-    public Result<ProductDetailVO> queryDetail(Product product, HttpServletRequest req) {
-        Result<ProductDetailVO> result = new Result<>();
+    public Result<ProductVO> queryDetail(Product product, HttpServletRequest req) {
+        Result<ProductVO> result = new Result<>();
         product.setStatus(1);
         Product productDO = productService.getById(product.getId());
-        ProductDetailVO vo = new ProductDetailVO();
+        ProductVO vo = new ProductVO();
         BeanUtils.copyProperties(productDO, vo);
+        ProductDetail detail = productDetailService.selectByMainId(productDO.getId());
+
+        vo.setDetail(detail);
         List<Image> mainImageList = queryImageListByMainId(vo.getId(),1);
         if(!mainImageList.isEmpty()){
             vo.setMainPic(new ArrayList<>());

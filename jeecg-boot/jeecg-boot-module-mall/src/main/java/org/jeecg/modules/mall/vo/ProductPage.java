@@ -2,6 +2,7 @@ package org.jeecg.modules.mall.vo;
 
 import lombok.Data;
 import org.jeecg.modules.mall.entity.Collection;
+import org.jeecg.modules.mall.entity.ProductDetail;
 import org.jeecg.modules.support.entity.Image;
 import org.jeecgframework.poi.excel.annotation.Excel;
 import org.jeecgframework.poi.excel.annotation.ExcelCollection;
@@ -39,7 +40,7 @@ public class ProductPage {
 	private Integer costPrice;
 	/**是否推荐:0-否,1-是*/
   	@Excel(name = "是否推荐:0-否,1-是", width = 15)
-	private Integer isRecommand;
+	private Integer isRecommend;
 	/**是否热销:0-否,1-是*/
   	@Excel(name = "是否热销:0-否,1-是", width = 15)
 	private Integer isHot;
@@ -72,5 +73,7 @@ public class ProductPage {
 	private List<Image> imageList;
 	@ExcelCollection(name="收藏信息")
 	private List<Collection> collectionList;
+	@ExcelCollection(name="商品详细信息")
+	private List<ProductDetail> productDetailList;
 	
 }

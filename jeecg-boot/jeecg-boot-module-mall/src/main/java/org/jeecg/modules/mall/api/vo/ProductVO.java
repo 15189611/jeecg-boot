@@ -1,11 +1,12 @@
 package org.jeecg.modules.mall.api.vo;
 
 import lombok.Data;
+import org.jeecg.modules.mall.entity.ProductDetail;
 
 import java.util.List;
 
 @Data
-public class ProductDetailVO {
+public class ProductVO {
 
     /**ID*/
     private String id;
@@ -27,6 +28,7 @@ public class ProductDetailVO {
     private Integer isFree;
     /**销量*/
     private Integer sells;
+    private ProductDetail detail;
 
 
     //主图
