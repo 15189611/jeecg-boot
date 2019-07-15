@@ -7,6 +7,7 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.config.WeChatConfig;
 import org.jeecg.common.util.*;
 import org.jeecg.modules.mall.api.vo.ReqPrepay;
+import org.jeecg.modules.mall.api.vo.WeChatNotifyReq;
 import org.jeecg.modules.mall.entity.Order;
 import org.jeecg.modules.mall.service.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -27,10 +27,6 @@ import java.util.TreeMap;
 public class ApiPayController {
     @Autowired
     private IOrderService orderService;
-//    @Autowired
-//    private ApiOrderGoodsService orderGoodsService;
-//    @Autowired
-//    private RedisService redisService;
 
 
     @Autowired
@@ -230,24 +226,24 @@ public class ApiPayController {
             //xml数据
             String reponseXml = new String(out.toByteArray(), "utf-8");
 
-//            WechatRefundApiResult result = (WechatRefundApiResult) XmlUtil.xmlStrToBean(reponseXml, WechatRefundApiResult.class);
-//            String result_code = result.getResult_code();
-//            if (result_code.equalsIgnoreCase("FAIL")) {
-//                //订单编号
-//                String out_trade_no = result.getOut_trade_no();
-//                log.error("订单" + out_trade_no + "支付失败");
-//                response.getWriter().write(setXml("SUCCESS", "OK"));
-//            } else if (result_code.equalsIgnoreCase("SUCCESS")) {
-//                //订单编号
-//                String out_trade_no = result.getOut_trade_no();
-//                log.error("订单" + out_trade_no + "支付成功");
-//                // 业务处理
-//                Order orderInfo = orderService.queryObject(Integer.valueOf(out_trade_no));
-//                orderInfo.setPayStatus(2);//付款成功
-//                orderInfo.setStatus(3);//待发货
-//                orderService.updateById(orderInfo);
-//                response.getWriter().write(setXml("SUCCESS", "OK"));
-//            }
+            WeChatNotifyReq result = (WeChatNotifyReq) XmlUtil.xmlStrToBean(reponseXml, WeChatNotifyReq.class);
+            String result_code = result.getResult_code();
+            if (result_code.equalsIgnoreCase("FAIL")) {
+                //订单编号
+                String out_trade_no = result.getOut_trade_no();
+                log.error("订单" + out_trade_no + "支付失败");
+                response.getWriter().write(setXml("SUCCESS", "OK"));
+            } else if (result_code.equalsIgnoreCase("SUCCESS")) {
+                //订单编号
+                String out_trade_no = result.getOut_trade_no();
+                log.error("订单" + out_trade_no + "支付成功");
+                // 业务处理
+                Order orderInfo = orderService.queryByOrderNo(out_trade_no);
+                orderInfo.setPayStatus(2);//付款成功
+                orderInfo.setStatus(3);//待发货
+                orderService.updateById(orderInfo);
+                response.getWriter().write(setXml("SUCCESS", "OK"));
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -274,9 +270,9 @@ public class ApiPayController {
 ////            return toResponsObject(400, "订单未付款，不能退款", "");
 ////        }
 //
-////        WechatRefundApiResult result = WechatUtil.wxRefund(orderInfo.getId().toString(),
+////        WeChatNotifyReq result = WechatUtil.wxRefund(orderInfo.getId().toString(),
 ////                orderInfo.getActual_price().doubleValue(), orderInfo.getActual_price().doubleValue());
-//        WechatRefundApiResult result = WechatUtil.wxRefund(orderInfo.getId().toString(),
+//        WeChatNotifyReq result = WechatUtil.wxRefund(orderInfo.getId().toString(),
 //                10.01, 10.01);
 //        if (result.getResult_code().equals("SUCCESS")) {
 //            if (orderInfo.getOrder_status() == 201) {

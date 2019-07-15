@@ -68,6 +68,7 @@ public class BannerController {
 	public Result<Banner> add(@RequestBody Banner banner) {
 		Result<Banner> result = new Result<Banner>();
 		try {
+			banner.setType(1);//1-banner
 			bannerService.save(banner);
 			result.success("添加成功！");
 		} catch (Exception e) {
@@ -102,7 +103,7 @@ public class BannerController {
 	}
 	
 	/**
-	  *   通过id删除
+	 * 通过id删除
 	 * @param id
 	 * @return
 	 */

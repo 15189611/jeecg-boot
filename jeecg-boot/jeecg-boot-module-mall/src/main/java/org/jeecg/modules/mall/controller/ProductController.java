@@ -34,10 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
 * @Description: 商品信息
@@ -92,6 +89,11 @@ public class ProductController {
            Product product = new Product();
            BeanUtils.copyProperties(productPage, product);
 
+           if(product.getStatus()==1){
+               //新增时是上架状态则设置上架时间，否则为空
+               product.setOnShelvesTime(new Date());
+           }
+
            productService.save(product);
            result.success("添加成功！");
        } catch (Exception e) {
@@ -115,6 +117,9 @@ public class ProductController {
        if(productEntity==null) {
            result.error500("未找到对应实体");
        }else {
+           if(productEntity.getOnShelvesTime()==null && product.getStatus()==1){
+               product.setOnShelvesTime(new Date());
+           }
            productService.updateById(product);
            result.success("修改成功!");
        }
@@ -205,6 +210,7 @@ public class ProductController {
    public Result<Image> addImage(@RequestBody Image image) {
        Result<Image> result = new Result<>();
        try {
+           image.setBusinessType(2);//
            boolean ok = imageService.save(image);
            if (ok) {
                result.setSuccess(true);

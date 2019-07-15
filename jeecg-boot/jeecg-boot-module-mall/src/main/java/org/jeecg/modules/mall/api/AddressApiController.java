@@ -139,7 +139,8 @@ public class AddressApiController {
            if(address.getUserId().equals(req.getUserId())){
                boolean ok = addressService.removeById(address.getId());
                if(ok) {
-                   result.success("删除成功!");
+                   result.setCode(0);
+                   result.setMessage("删除成功!");
                }
            }
        }

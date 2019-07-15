@@ -9,9 +9,11 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.modules.mall.api.vo.ReqAddCart;
 import org.jeecg.modules.mall.api.vo.ReqChangeNumCart;
 import org.jeecg.modules.mall.api.vo.ReqRemoveCart;
+import org.jeecg.modules.mall.config.MallConfig;
 import org.jeecg.modules.mall.entity.Cart;
 import org.jeecg.modules.mall.entity.bo.CartProductBO;
 import org.jeecg.modules.mall.service.ICartService;
+import org.jeecg.modules.mall.service.IProductService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +37,10 @@ import java.util.List;
 public class CartApiController {
     @Autowired
     private ICartService cartService;
+    @Autowired
+    private MallConfig mallConfig;
+    @Autowired
+    private IProductService productService;
 
 
     /**
@@ -50,6 +56,7 @@ public class CartApiController {
         Result<List<CartProductBO>> result = new Result<>();
         Page<Cart> page = new Page<>(pageNo, pageSize);
         IPage<CartProductBO> pageList = cartService.queryPageForUser(page, cart.getUserId());
+        pageList.getRecords().forEach(e-> e.setPicUrl(mallConfig.getPicPrefix()+productService.getProductPic(e.getProductId())));
         result.setSuccess(true);
         result.setResult(pageList.getRecords());
         return result;

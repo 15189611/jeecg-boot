@@ -131,9 +131,11 @@ public class ProductApiController {
                                                                @RequestParam(name="pageSize", defaultValue="10") Integer pageSize) {
         Result<List<ProductListVO>> result = new Result<>();
         Product product = new Product();
+        if( reqInfo.getCategory()!=null){
+            product.setCategoryId(Integer.parseInt(reqInfo.getCategory()));
+        }
         product.setStatus(1);
         QueryWrapper<Product> queryWrapper = new QueryWrapper<>(product);
-//        queryWrapper.orderBy()
         reqInfo.getOrderType();
         if(StringUtils.isNotEmpty(reqInfo.getOrderType())) {
             if ("asc".equals(reqInfo.getSortType())) {

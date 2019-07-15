@@ -1,16 +1,13 @@
 package org.jeecg.modules.mall.api;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
-import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.modules.mall.api.vo.ReqCancelCollected;
 import org.jeecg.modules.mall.api.vo.ReqCollected;
+import org.jeecg.modules.mall.config.MallConfig;
 import org.jeecg.modules.mall.entity.Collection;
 import org.jeecg.modules.mall.entity.bo.CollectionProductBO;
 import org.jeecg.modules.mall.service.ICollectionService;
@@ -18,7 +15,6 @@ import org.jeecg.modules.mall.service.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,6 +34,8 @@ public class CollectionApiController {
 
    @Autowired
    private IProductService productService;
+    @Autowired
+    private MallConfig mallConfig;
 
    /**
      * 分页列表查询
@@ -50,7 +48,7 @@ public class CollectionApiController {
    public Result queryPageList(Collection collection) {
        Result<List<CollectionProductBO>> result = new Result<>();
        List<CollectionProductBO> pageList = collectionService.queryCollectionProductByUserId(collection.getUserId());
-       pageList.forEach(e -> e.setPicUrl(productService.getProductPic(e.getProductId())));
+       pageList.forEach(e -> e.setPicUrl(mallConfig.getPicPrefix()+productService.getProductPic(e.getProductId())));
        result.setSuccess(true);
        result.setCode(0);
        result.setResult(pageList);

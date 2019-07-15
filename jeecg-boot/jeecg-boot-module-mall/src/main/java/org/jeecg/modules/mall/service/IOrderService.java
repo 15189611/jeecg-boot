@@ -21,23 +21,23 @@ public interface IOrderService extends IService<Order> {
 	 * 添加一对多
 	 * 
 	 */
-	public String saveMain(Order order,List<OrderProduct> orderProductList) ;
+	String saveMain(Order order,List<OrderProduct> orderProductList) ;
 	
 	/**
 	 * 修改一对多
 	 * 
 	 */
-	public void updateMain(Order order,List<OrderProduct> orderProductList);
+	void updateMain(Order order,List<OrderProduct> orderProductList);
 	
 	/**
 	 * 删除一对多
 	 */
-	public void delMain (String id);
+	void delMain (String id);
 	
 	/**
 	 * 批量删除一对多
 	 */
-	public void delBatchMain (Collection<? extends Serializable> idList);
+	void delBatchMain (Collection<? extends Serializable> idList);
 
 	/**
 	 * 按用户ID查询指定status的订单

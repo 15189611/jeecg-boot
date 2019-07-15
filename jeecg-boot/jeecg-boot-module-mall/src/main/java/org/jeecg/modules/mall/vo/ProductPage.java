@@ -21,10 +21,10 @@ public class ProductPage {
 	/**ID*/
 	private String id;
 	/**描述*/
-  	@Excel(name = "描述", width = 15)
+  	@Excel(name = "商品标题", width = 15)
 	private String title;
 	/**商品标题*/
-  	@Excel(name = "商品标题", width = 15)
+  	@Excel(name = "描述", width = 15)
 	private String description;
 	/**折扣价*/
   	@Excel(name = "折扣价", width = 15)
@@ -50,15 +50,6 @@ public class ProductPage {
 	/**是否免邮:0-否,1-是*/
   	@Excel(name = "是否免邮:0-否,1-是", width = 15)
 	private Integer isFree;
-	/**重量*/
-  	@Excel(name = "重量", width = 15)
-	private Double weight;
-	/**尺寸*/
-  	@Excel(name = "尺寸", width = 15)
-	private Double volume;
-	/**尺寸单位*/
-  	@Excel(name = "尺寸单位", width = 15)
-	private String volType;
 	/**库存*/
   	@Excel(name = "库存", width = 15)
 	private Integer inventory;
