@@ -87,6 +87,9 @@ const queryUserRoleMap = (params)=>getAction("/sys/user/queryUserRoleMap",params
 // 重复校验
 const duplicateCheck = (params)=>getAction("/sys/duplicate/check",params);
 
+
+const queryProductList = (params)=>getAction("/mall/product/list",params);
+
 export {
   // imgView,
   // doMian,
@@ -131,6 +134,7 @@ export {
   queryUserRoleMap,
   duplicateCheck,
   queryTreeListForRole,
+  queryProductList,
 }
 
 
