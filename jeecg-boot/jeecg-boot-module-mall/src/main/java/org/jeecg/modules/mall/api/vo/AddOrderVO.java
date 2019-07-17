@@ -7,4 +7,6 @@ public class AddOrderVO {
 
     private String userId;
     private String productId;
+    private String action;  //direct_buy：直接购买
+    private Integer amount;  //直接购买的数量
 }

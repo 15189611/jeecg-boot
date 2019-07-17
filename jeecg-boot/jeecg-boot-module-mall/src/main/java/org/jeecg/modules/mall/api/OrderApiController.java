@@ -12,10 +12,7 @@ import org.jeecg.modules.mall.config.MallConfig;
 import org.jeecg.modules.mall.entity.*;
 import org.jeecg.modules.mall.entity.bo.CartProductBO;
 import org.jeecg.modules.mall.entity.bo.OrderProductBO;
-import org.jeecg.modules.mall.service.IAddressService;
-import org.jeecg.modules.mall.service.ICartService;
-import org.jeecg.modules.mall.service.IOrderProductService;
-import org.jeecg.modules.mall.service.IOrderService;
+import org.jeecg.modules.mall.service.*;
 import org.jeecg.modules.mall.vo.OrderPage;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +42,8 @@ public class OrderApiController {
    private ICartService cartService;
    @Autowired
    private MallConfig mallConfig;
+   @Autowired
+   private IProductService productService;
 
    /**
      * 分页列表查询
@@ -108,26 +107,41 @@ public class OrderApiController {
            Address address = addressService.queryUserDefaultAddress(addOrder.getUserId());
            if(address != null){
                order.setConsignee(address.getConsignee());
-               order.setAddress("");
+               order.setAddress(address.getArea()+address.getAddress());
                order.setMobile(address.getMobile());
+           }else {
+               order.setConsignee("");
+               order.setAddress("");
+               order.setMobile("");
            }
            int orderAmount = 0;
 
            String productId = addOrder.getProductId();
            List<String> cartProductIds = new ArrayList<>();
-
-           String[] productIds = productId.split(",");
-           List<CartProductBO> cartProduct = cartService.queryListByUserIdAndIds(addOrder.getUserId(),Arrays.asList(productIds));
-           List<OrderProduct> itemList = new ArrayList();
-           for (CartProductBO bo:cartProduct){
+           List<OrderProduct> itemList = new ArrayList();   //订单详细信息
+           if("direct_buy".equals(addOrder.getAction())){
+               Product po = productService.getById(productId);
                OrderProduct orderProduct = new OrderProduct();
-               orderProduct.setProductId(bo.getProductId());
-               orderProduct.setNum(bo.getNum());
-               orderProduct.setProductPrice(bo.getSellingPrice());
+               orderProduct.setProductId(po.getId());
+               orderProduct.setNum(addOrder.getAmount());
+               orderProduct.setProductPrice(po.getSellingPrice());
+               int productAmount = addOrder.getAmount() * po.getSellingPrice();
+               orderAmount += productAmount;
                itemList.add(orderProduct);
-               int productAmount = bo.getNum()*bo.getSellingPrice();
-               orderAmount+=productAmount;
-               cartProductIds.add(bo.getId());
+           }else {
+               String[] productIds = productId.split(",");
+               List<CartProductBO> cartProduct = cartService.queryListByUserIdAndIds(addOrder.getUserId(), Arrays.asList(productIds));
+
+               for (CartProductBO bo : cartProduct) {
+                   OrderProduct orderProduct = new OrderProduct();
+                   orderProduct.setProductId(bo.getProductId());
+                   orderProduct.setNum(bo.getNum());
+                   orderProduct.setProductPrice(bo.getSellingPrice());
+                   itemList.add(orderProduct);
+                   int productAmount = bo.getNum() * bo.getSellingPrice();
+                   orderAmount += productAmount;
+                   cartProductIds.add(bo.getId());
+               }
            }
 
            order.setTotalAmount(orderAmount);

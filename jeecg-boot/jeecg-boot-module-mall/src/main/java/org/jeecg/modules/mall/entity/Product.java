@@ -27,12 +27,12 @@ public class Product implements Serializable {
 	private String title;
 	/**商品标题*/
 	private String description;
-	/**折扣价*/
-	private Integer discountPrice;
 	/**categoryId*/
 	private Integer categoryId;
-	/**销售价*/
+	/**现价 销售价*/
 	private Integer sellingPrice;
+	/**原价（折扣价）*/
+	private Integer discountPrice;
 	/**成本价*/
 	private Integer costPrice;
 	/**是否推荐:0-否,1-是*/

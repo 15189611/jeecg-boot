@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.TreeMap;
@@ -112,7 +113,7 @@ public class ApiPayController {
                         // 业务处理
                         // 付款中
                         Order orderDO = new Order();
-                        orderDO.setPayStatus(1);//1付款中
+                        orderDO.setPayStatus(1);//1付款中 待付款
                         orderDO.setId(order.getId());
                         orderService.updateById(order);
                         Result result =new Result();
@@ -224,9 +225,10 @@ public class ApiPayController {
             out.close();
             in.close();
             //xml数据
-            String reponseXml = new String(out.toByteArray(), "utf-8");
-
-            WeChatNotifyReq result = (WeChatNotifyReq) XmlUtil.xmlStrToBean(reponseXml, WeChatNotifyReq.class);
+            String responseXml = new String(out.toByteArray(), "utf-8");
+            log.info("收到订单通知报文：{}" ,responseXml );
+            WeChatNotifyReq result = (WeChatNotifyReq) XmlUtil.xmlStrToBean(responseXml, WeChatNotifyReq.class);
+            //TODO 验签
             String result_code = result.getResult_code();
             if (result_code.equalsIgnoreCase("FAIL")) {
                 //订单编号
@@ -240,14 +242,19 @@ public class ApiPayController {
                 // 业务处理
                 Order orderInfo = orderService.queryByOrderNo(out_trade_no);
                 orderInfo.setPayStatus(2);//付款成功
-                orderInfo.setStatus(3);//待发货
+                orderInfo.setStatus(2);//已付款 待发货
                 orderService.updateById(orderInfo);
                 response.getWriter().write(setXml("SUCCESS", "OK"));
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return;
+            try {
+                response.getWriter().write(setXml("FAIL", "OK"));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
+        return ;
     }
 
 //    /**
