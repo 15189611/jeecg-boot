@@ -9,19 +9,26 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.util.oConvertUtils;
-import org.jeecg.modules.mall.api.vo.ProductVO;
 import org.jeecg.modules.mall.api.vo.ProductListVO;
+import org.jeecg.modules.mall.api.vo.ProductVO;
+import org.jeecg.modules.mall.api.vo.ReqProductDetail;
 import org.jeecg.modules.mall.api.vo.ReqProductListByCategory;
 import org.jeecg.modules.mall.config.MallConfig;
+import org.jeecg.modules.mall.entity.Cart;
 import org.jeecg.modules.mall.entity.Product;
 import org.jeecg.modules.mall.entity.ProductDetail;
+import org.jeecg.modules.mall.entity.bo.CartProductBO;
+import org.jeecg.modules.mall.service.ICartService;
 import org.jeecg.modules.mall.service.IProductDetailService;
 import org.jeecg.modules.mall.service.IProductService;
 import org.jeecg.modules.support.entity.Image;
 import org.jeecg.modules.support.service.IImageService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -46,6 +53,8 @@ public class ProductApiController {
     private IImageService imageService;
     @Autowired
     private MallConfig mallConfig;
+    @Autowired
+    private ICartService cartService;
 
     /**
      * 分页列表查询
@@ -85,13 +94,15 @@ public class ProductApiController {
 
     /**
      * 分页列表查询
-     * @param product
+     * @param productDetail
      * @param req
      * @return
      */
     @PostMapping(value = "/detail")
-    public Result<ProductVO> queryDetail(Product product, HttpServletRequest req) {
+    public Result<ProductVO> queryDetail(ReqProductDetail productDetail, HttpServletRequest req) {
         Result<ProductVO> result = new Result<>();
+        Product product = new Product();
+        product.setId(productDetail.getProductId());
         product.setStatus(1);
         Product productDO = productService.getById(product.getId());
         ProductVO vo = new ProductVO();
@@ -110,8 +121,11 @@ public class ProductApiController {
             vo.setSubPic(new ArrayList<>());
             subImageList.forEach(e -> vo.getSubPic().add(mallConfig.getPicPrefix() + e.getUrl()));
         }
-
-
+        if(StringUtils.isNotEmpty(productDetail.getUserId())) {
+            Page<Cart> page = new Page<>(1, 100);
+            IPage<CartProductBO> pageList = cartService.queryPageForUser(page, productDetail.getUserId());
+            vo.setCartNum(pageList.getRecords().size());
+        }
         result.setSuccess(true);
         result.setResult(vo);
         return result;

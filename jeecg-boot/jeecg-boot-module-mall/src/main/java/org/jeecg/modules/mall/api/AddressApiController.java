@@ -54,6 +54,7 @@ public class AddressApiController {
        QueryWrapper<Address> queryWrapper = new QueryWrapper<>(address);
        Page<Address> page = new Page<>(pageNo, pageSize);
        IPage<Address> pageList = addressService.page(page, queryWrapper);
+       result.setCode(0);
        result.setSuccess(true);
        result.setResult(pageList.getRecords());
        return result;

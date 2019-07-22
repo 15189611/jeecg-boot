@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.util.SerialNo;
 import org.jeecg.modules.mall.api.vo.*;
@@ -13,6 +14,7 @@ import org.jeecg.modules.mall.entity.*;
 import org.jeecg.modules.mall.entity.bo.CartProductBO;
 import org.jeecg.modules.mall.entity.bo.OrderProductBO;
 import org.jeecg.modules.mall.service.*;
+import org.jeecg.modules.mall.util.MallConstant;
 import org.jeecg.modules.mall.vo.OrderPage;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +86,31 @@ public class OrderApiController {
        return result;
    }
 
+
+    @PostMapping(value = "/detail")
+    public Result<OrderDetailVO> getOrderDetail(ReqGetOrderPayInfoVO req) {
+        Result<OrderDetailVO> result = new Result();
+        try {
+            //重新加载数据库订单数据
+            OrderDetailVO resp =  new OrderDetailVO();
+            Order orderDO =  orderService.getById(req.getOrderId());
+            if(orderDO ==null || !orderDO.getUserId().equals(req.getUserId()) ){
+                result.setCode(1);
+                result.setMessage("订单异常");
+                return result;
+            }
+            BeanUtils.copyProperties(orderDO, resp);
+            resp.setStatus(MallConstant.OrderStatus.getValue(orderDO.getStatus()));
+            result.setResult(resp);
+            result.setCode(0);
+            result.setSuccess(true);
+        } catch (Exception e) {
+            log.error(e.getMessage(),e);
+            result.error500("操作失败");
+        }
+        return result;
+    }
+
    /**
     *   添加
     * @param addOrder
@@ -92,83 +119,110 @@ public class OrderApiController {
    @PostMapping(value = "/add")
    public Result<OrderInfoVO> add(AddOrderVO addOrder) {
        Result<OrderInfoVO> result = new Result();
-
-       try {
-           String productIdDec= URLDecoder.decode(addOrder.getProductId(),"UTF-8");
-           String ss = JSON.parseObject(productIdDec,String.class);
-           addOrder.setProductId(ss);
-       } catch (UnsupportedEncodingException e) {
-           log.error("",e);
-       }
        OrderInfoVO orderInfoVO = new OrderInfoVO();
-       try {
-           Order order = new Order();
-           order.setUserId(addOrder.getUserId());
+       Order orderDO=null;
+       if(StringUtils.isEmpty(addOrder.getOrderId())){
+           try {
+               String productIdDec= URLDecoder.decode(addOrder.getProductId(),"UTF-8");
+               String ss = JSON.parseObject(productIdDec,String.class);
+               addOrder.setProductId(ss);
+           } catch (UnsupportedEncodingException e) {
+               log.error("",e);
+           }
+
+           try {
+               Order order = new Order();
+               order.setUserId(addOrder.getUserId());
+               Address address = addressService.queryUserDefaultAddress(addOrder.getUserId());
+               if (address != null) {
+                   order.setConsignee(address.getConsignee());
+                   order.setAddress(address.getArea() + address.getAddress());
+                   order.setMobile(address.getMobile());
+                   orderInfoVO.setAddressId(address.getId());
+               } else {
+                   order.setConsignee("");
+                   order.setAddress("");
+                   order.setMobile("");
+                   orderInfoVO.setAddressId("");
+               }
+               int orderAmount = 0;
+
+               String productId = addOrder.getProductId();
+               List<String> cartProductIds = new ArrayList<>();
+               int totalNum = 0;
+               List<OrderProduct> itemList = new ArrayList();   //订单详细信息
+               if ("direct_buy".equals(addOrder.getAction())) {
+                   Product po = productService.getById(productId);
+                   OrderProduct orderProduct = new OrderProduct();
+                   orderProduct.setProductId(po.getId());
+                   orderProduct.setNum(addOrder.getAmount());
+                   orderProduct.setProductPrice(po.getSellingPrice());
+                   int productAmount = addOrder.getAmount() * po.getSellingPrice();
+                   orderAmount += productAmount;
+                   itemList.add(orderProduct);
+                   totalNum += addOrder.getAmount();
+               } else {
+                   String[] productIds = productId.split(",");
+                   List<CartProductBO> cartProduct = cartService.queryListByUserIdAndIds(addOrder.getUserId(), Arrays.asList(productIds));
+
+                   for (CartProductBO bo : cartProduct) {
+                       OrderProduct orderProduct = new OrderProduct();
+                       orderProduct.setProductId(bo.getProductId());
+                       orderProduct.setNum(bo.getNum());
+                       orderProduct.setProductPrice(bo.getSellingPrice());
+                       itemList.add(orderProduct);
+                       int productAmount = bo.getNum() * bo.getSellingPrice();
+                       orderAmount += productAmount;
+                       cartProductIds.add(bo.getId());
+                       totalNum += bo.getNum();
+                   }
+               }
+
+               order.setTotalAmount(orderAmount);
+               order.setDiscountAmount(0);
+               order.setRealAmount(order.getTotalAmount() - order.getDiscountAmount());
+               order.setOrderTime(new Date());
+               order.setOrderNo(SerialNo.getNo());
+               order.setStatus(0);
+               order.setTotalNum(totalNum);
+               order.setPayStatus(0);
+               String orderId = orderService.saveMain(order, itemList);
+    //           cartService.removeByIds(cartProductIds);
+               orderDO =  orderService.getById(orderId);
+           } catch (Exception e) {
+               log.error(e.getMessage(),e);
+               result.error500("操作失败");
+           }
+       }else{
+           //重新加载数据库订单数据
            Address address = addressService.queryUserDefaultAddress(addOrder.getUserId());
-           if(address != null){
+           Order order = new Order();
+           if (address != null) {
                order.setConsignee(address.getConsignee());
-               order.setAddress(address.getArea()+address.getAddress());
+               order.setAddress(address.getArea() + address.getAddress());
                order.setMobile(address.getMobile());
-           }else {
+               orderInfoVO.setAddressId(address.getId());
+           } else {
                order.setConsignee("");
                order.setAddress("");
                order.setMobile("");
+               orderInfoVO.setAddressId("");
            }
-           int orderAmount = 0;
+           order.setId(addOrder.getOrderId());
+           orderService.updateById(order);
+           orderDO =  orderService.getById(addOrder.getOrderId());
 
-           String productId = addOrder.getProductId();
-           List<String> cartProductIds = new ArrayList<>();
-           List<OrderProduct> itemList = new ArrayList();   //订单详细信息
-           if("direct_buy".equals(addOrder.getAction())){
-               Product po = productService.getById(productId);
-               OrderProduct orderProduct = new OrderProduct();
-               orderProduct.setProductId(po.getId());
-               orderProduct.setNum(addOrder.getAmount());
-               orderProduct.setProductPrice(po.getSellingPrice());
-               int productAmount = addOrder.getAmount() * po.getSellingPrice();
-               orderAmount += productAmount;
-               itemList.add(orderProduct);
-           }else {
-               String[] productIds = productId.split(",");
-               List<CartProductBO> cartProduct = cartService.queryListByUserIdAndIds(addOrder.getUserId(), Arrays.asList(productIds));
 
-               for (CartProductBO bo : cartProduct) {
-                   OrderProduct orderProduct = new OrderProduct();
-                   orderProduct.setProductId(bo.getProductId());
-                   orderProduct.setNum(bo.getNum());
-                   orderProduct.setProductPrice(bo.getSellingPrice());
-                   itemList.add(orderProduct);
-                   int productAmount = bo.getNum() * bo.getSellingPrice();
-                   orderAmount += productAmount;
-                   cartProductIds.add(bo.getId());
-               }
-           }
-
-           order.setTotalAmount(orderAmount);
-           order.setDiscountAmount(0);
-           order.setRealAmount(order.getTotalAmount()-order.getDiscountAmount());
-           order.setOrderTime(new Date());
-           order.setOrderNo(SerialNo.getNo());
-           order.setStatus(0);
-           order.setPayStatus(0);
-           String orderId = orderService.saveMain(order,itemList);
-//           cartService.removeByIds(cartProductIds);
-           result.success("添加成功！");
-           //重新加载数据库订单数据
-           Order orderDO =  orderService.getById(orderId);
+       }
            BeanUtils.copyProperties(orderDO, orderInfoVO);
            //加载订单商品信息
-           List<OrderProductBO> orderProductBOList = orderProductService.selectByMainId(orderId);
+           List<OrderProductBO> orderProductBOList = orderProductService.selectByMainId(orderDO.getId());
            orderProductBOList.forEach(e-> e.setPicUrl(mallConfig.getPicPrefix()+e.getPicUrl()));
            orderInfoVO.setProductList(orderProductBOList);
-
            result.setResult(orderInfoVO);
            result.setCode(0);
            result.setSuccess(true);
-       } catch (Exception e) {
-           log.error(e.getMessage(),e);
-           result.error500("操作失败");
-       }
+
        return result;
    }
 
@@ -225,6 +279,12 @@ public class OrderApiController {
             result.setCode(1);
             return result;
         }
+        if(StringUtils.isBlank(order.getAddress())){
+            result.setCode(1);
+            result.setMessage("请选择收货地址");
+            return result;
+        }
+
         Order orderDO = new Order();
         orderDO.setId(orderConfirm.getOrderId());
         orderDO.setRemark(orderConfirm.getRemark());
@@ -241,7 +301,50 @@ public class OrderApiController {
     }
 
 
+    /**
+     * 确认收货
+     *
+     * @param req
+     * @return
+     */
+    @PostMapping(value = "/finish")
+    public Result finish(Order req) {
+        Result result = new Result<>();
+        Order order = orderService.getById(req.getId());
 
+        if(order==null){
+            //订单不存在
+            result.setCode(1);
+            return result;
+        }else{
+            if(!order.getUserId().equals(req.getUserId())){
+                //订单异常
+                result.setCode(1);
+                return result;
+            }
+        }
+        if(order.getPayStatus()!=2 ){
+            result.setCode(1);
+            result.setMessage("未付款订单不能收货！");
+            return result;
+        }
+
+        if( order.getStatus()!=3){
+            result.setCode(1);
+            result.setMessage("操作失败：订单状态异常！");
+            return result;
+        }
+        Order orderDO = new Order();
+        orderDO.setId(order.getId());
+        orderDO.setStatus(4);//确认收货 已完成
+        orderDO.setUpdateTime(new Date());
+        orderService.updateById(orderDO);
+
+        result.setCode(0);
+        result.setSuccess(true);
+
+        return result;
+    }
    /**
      *  编辑
     * @param orderPage
@@ -269,14 +372,20 @@ public class OrderApiController {
     * @return
     */
    @DeleteMapping(value = "/delete")
-   public Result<Order> delete(@RequestParam(name="id",required=true) String id) {
+   public Result<Order> delete(@RequestParam(name="id",required=true) String id,
+                               @RequestParam(name="userId") String userId) {
        Result<Order> result = new Result<Order>();
        Order order = orderService.getById(id);
        if(order==null) {
            result.error500("未找到对应实体");
        }else {
-           orderService.delMain(id);
-           result.success("删除成功!");
+           if(!order.getUserId().equals(userId)){
+               result.error500("操作异常！");
+           }else {
+               orderService.delMain(id);
+               result.setCode(0);
+               result.setMessage("删除成功!");
+           }
        }
 
        return result;

@@ -298,4 +298,15 @@ public class ApiPayController {
         return "<xml><return_code><![CDATA[" + return_code + "]]></return_code><return_msg><![CDATA[" + return_msg + "]]></return_msg></xml>";
     }
 
+
+    @PostMapping(value = "/test")
+    public Result  queryPageList( @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
+                                  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize) {
+        Result result = new Result<>();
+
+
+        result.setResult(pageSize+"chenggong "+pageNo);
+        return result;
+    }
+
 }

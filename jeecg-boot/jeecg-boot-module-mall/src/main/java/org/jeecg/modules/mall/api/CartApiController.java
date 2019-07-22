@@ -79,7 +79,7 @@ public class CartApiController {
             BeanUtils.copyProperties(addCart, cart);
             cartService.save(cart);
             result.setCode(0);
-            result.success("添加成功！");
+            result.setMessage("添加成功！");
         } catch (Exception e) {
             log.error(e.getMessage(),e);
             result.error500("操作失败");

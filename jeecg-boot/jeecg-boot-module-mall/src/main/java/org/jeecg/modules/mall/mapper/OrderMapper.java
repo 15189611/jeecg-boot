@@ -23,4 +23,7 @@ public interface OrderMapper extends BaseMapper<Order> {
 
     @Select("select * from t_shop_order where order_no  = #{orderNo}")
     Order queryByOrderNo(String orderNo);
+
+//
+//    IPage<Order> queryOrderByUserIdAndStatus(Page page, @Param("userId") String userId,Integer status,List<Integer> statusList );
 }

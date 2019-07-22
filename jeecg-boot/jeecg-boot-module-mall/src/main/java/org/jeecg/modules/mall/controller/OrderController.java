@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jeecg.modules.mall.entity.bo.OrderProductBO;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -65,7 +66,8 @@ public class OrderController {
 									  @RequestParam(name="pageNo", defaultValue="1") Integer pageNo,
 									  @RequestParam(name="pageSize", defaultValue="10") Integer pageSize,
 									  HttpServletRequest req) {
-		Result<IPage<Order>> result = new Result<IPage<Order>>();
+        order.setUserId(null);
+		Result<IPage<Order>> result = new Result<>();
 		QueryWrapper<Order> queryWrapper = QueryGenerator.initQueryWrapper(order, req.getParameterMap());
 		Page<Order> page = new Page<Order>(pageNo, pageSize);
 		IPage<Order> pageList = orderService.page(page, queryWrapper);
@@ -178,11 +180,11 @@ public class OrderController {
 	 * @return
 	 */
 	@GetMapping(value = "/listOrderProductByMainId")
-	public Result<List<OrderProduct>> queryOrderProductListByMainId(@RequestParam(name="mainId",required=false) String mainId) {
-		Result<List<OrderProduct>> result = new Result<List<OrderProduct>>();
-		List<OrderProduct> orderProductList = null;
+	public Result<List<OrderProductBO>> queryOrderProductListByMainId(@RequestParam(name="mainId",required=false) String mainId) {
+		Result<List<OrderProductBO>> result = new Result<List<OrderProductBO>>();
+		List<OrderProductBO> orderProductList = null;
 		if (mainId != null) {
-//			orderProductList = orderProductService.selectByMainId(mainId);
+			orderProductList = orderProductService.selectByMainId(mainId);
             result.setResult(orderProductList);
             result.setSuccess(true);
             return result;

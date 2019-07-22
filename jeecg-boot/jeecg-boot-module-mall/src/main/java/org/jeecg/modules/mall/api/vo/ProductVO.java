@@ -30,6 +30,8 @@ public class ProductVO {
     private Integer sells;
     private ProductDetail detail;
 
+    private int cartNum;
+
 
     //主图
     private List<String> mainPic;
