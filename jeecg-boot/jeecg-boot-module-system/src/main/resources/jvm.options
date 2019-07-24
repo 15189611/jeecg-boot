@@ -1,0 +1,123 @@
+## JVM configuration
+
+################################################################
+## IMPORTANT: JVM heap size
+################################################################
+##
+## You should always set the min and max JVM heap
+## size to the same value. For example, to set
+## the heap to 4 GB, set:
+##
+## -Xms4g
+## -Xmx4g
+##
+##
+################################################################
+
+# Xms represents the initial size of total heap space
+# Xmx represents the maximum size of total heap space
+
+##-Xms5g
+##-Xmx5g
+##–Xmn1536m
+
+################################################################
+## Expert settings
+################################################################
+##
+## All settings below this section are considered
+## expert settings. Don't tamper with them unless
+## you understand what you are doing
+##
+################################################################
+
+## GC configuration
+-XX:+UseG1GC
+##-XX:MaxDirectMemorySize=1g
+##-XX:+UseConcMarkSweepGC
+##-XX:CMSInitiatingOccupancyFraction=75
+##-XX:+UseCMSInitiatingOccupancyOnly
+##-XX:MaxPermSize=1024M
+##-XX:PermSize=512M
+##-XX:MaxNewSize=2g
+##-XX:NewSize=1g
+##-XX:SurvivorRatio=4
+##-XX:+UseParNewGC #default
+##-XX:MaxTenuringThreshold=2
+##-XX:+CMSParallelRemarkEnabled
+##-XX:ParallelGCThreads=2
+##-XX:LargePageSizeInBytes=10m
+##-XX:-OmitStackTraceInFastThrow
+##-XX:-UseAdaptiveSizePolicy
+##-XX:+CMSConcurrentMTEnabled 
+##-XX:+CMSParallelSurvivorRemarkEnabled
+##-XX:CMSMaxAbortablePrecleanTime=5000
+##-XX:AutoBoxCacheMax=20000
+##-XX:+ExplicitGCInvokesConcurrent
+## optimizations
+
+# disable calls to System#gc
+##-XX:+DisableExplicitGC
+
+# pre-touch memory pages used by the JVM during initialization
+##-XX:+AlwaysPreTouch
+
+## basic
+
+# force the server VM (remove on 32-bit client JVMs)
+##-server
+
+##–Xnoclassgc
+
+# explicitly set the stack size (reduce to 320k on 32-bit client JVMs)
+##-Xss1m
+
+# set to headless, just in case
+##-Djava.awt.headless=true
+
+# ensure UTF-8 encoding by default (e.g. filenames)
+##-Dfile.encoding=UTF-8
+
+# use our provided JNA always versus the system one
+##-Djna.nosys=true
+
+# use old-style file permissions on JDK9
+##-Djdk.io.permissionsUseCanonicalPath=true
+
+# flags to keep Netty from being unsafe
+##-Dio.netty.noUnsafe=true
+##-Dio.netty.noKeySetOptimization=true
+##-Dio.netty.leakDetection.level=advanced
+##-Dio.netty.allocator.type=pooled
+##-Dio.netty.allocator.tinyCacheSize=0
+##-Dio.netty.allocator.smallCacheSize=0
+##-Dio.netty.allocator.normalCacheSize=0
+
+# log4j 2
+##-Dlog4j.shutdownHookEnabled=false
+##-Dlog4j2.disable.jmx=true
+##-Dlog4j.skipJansi=true
+-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+## heap dumps
+
+# generate a heap dump when an allocation from the Java heap fails
+# heap dumps are created in the working directory of the JVM
+-XX:+HeapDumpOnOutOfMemoryError
+
+-XX:+PrintCommandLineFlags
+# specify an alternative path for heap dumps
+# ensure the directory exists and has sufficient space
+##-XX:HeapDumpPath=logs/
+
+## GC logging
+-XX:ErrorFile=logs/hs_err_%p.log
+-XX:+PrintGCDetails
+##-XX:+PrintGCTimeStamps
+-XX:+PrintGCDateStamps
+##-XX:+PrintClassHistogram
+##-XX:+PrintTenuringDistribution
+-XX:+PrintGCApplicationStoppedTime
+
+# log GC status to a file with time stamps
+# ensure the directory exists
+-Xloggc:logs/gc-application.log

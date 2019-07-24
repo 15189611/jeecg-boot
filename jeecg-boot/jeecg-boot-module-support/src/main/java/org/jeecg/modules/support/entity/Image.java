@@ -37,7 +37,7 @@ public class Image {
     @ApiModelProperty(value = "业务类型: 1/banner图；2/商品")
 	private java.lang.Integer businessType;
 	/**图片类型: 1/主图,2/详细图*/
-	@Excel(name = "图片类型: 1/主图,2/详细图", width = 15)
+	@Excel(name = "图片类型: 1/主图,2/详细图,3缩略图", width = 15)
     @ApiModelProperty(value = "图片类型: 1/主图,2/详细图")
 	private java.lang.Integer type;
 	/**图片路径*/

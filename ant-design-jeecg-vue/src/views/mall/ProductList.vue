@@ -168,15 +168,16 @@
               }
             }
           },
-          {
-            title: '优惠价',
-            align:"center",
-            dataIndex: 'discountPrice'
-          },
+
           {
             title: '销售价',
             align:"center",
             dataIndex: 'sellingPrice'
+          },
+          {
+            title: '原价格',
+            align:"center",
+            dataIndex: 'discountPrice'
           },
           {
             title: '成本价',

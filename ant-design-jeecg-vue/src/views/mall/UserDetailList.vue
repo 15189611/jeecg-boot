@@ -3,16 +3,6 @@
 
     <!-- 操作按钮区域 -->
     <div class="table-operator" :md="24" :sm="24" style="margin: 0px 0px 0px 0px">
-      <a-dropdown v-if="selectedRowKeys.length > 0">
-        <a-menu slot="overlay">
-          <a-menu-item key="1" @click="batchDel">
-            <a-icon type="delete"/>删除
-          </a-menu-item>
-        </a-menu>
-        <a-button style="margin-left: 8px"> 批量操作
-          <a-icon type="down"/>
-        </a-button>
-      </a-dropdown>
     </div>
 
     <!-- table区域-begin -->
@@ -34,25 +24,25 @@
         :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
         @change="handleTableChange">
 
-        <span slot="action" slot-scope="text, record">
-          <a @click="handleEdit(record)">编辑</a>
-          <a-divider type="vertical"/>
-          <a-dropdown>
-            <a class="ant-dropdown-link">
-              更多 <a-icon type="down"/>
-            </a>
-            <a-menu slot="overlay">
-              <a-menu-item>
-                <a href="javascript:;" @click="handleDetail(record)">详情</a>
-              </a-menu-item>
-              <a-menu-item>
-                <a-popconfirm title="确定删除吗?" @confirm="() => handleDelete(record.id)">
-                  <a>删除</a>
-                </a-popconfirm>
-              </a-menu-item>
-            </a-menu>
-          </a-dropdown>
-        </span>
+<!--        <span slot="action" slot-scope="text, record">-->
+<!--          <a @click="handleEdit(record)">编辑</a>-->
+<!--          <a-divider type="vertical"/>-->
+<!--          <a-dropdown>-->
+<!--            <a class="ant-dropdown-link">-->
+<!--              更多 <a-icon type="down"/>-->
+<!--            </a>-->
+<!--            <a-menu slot="overlay">-->
+<!--              <a-menu-item>-->
+<!--                <a href="javascript:;" @click="handleDetail(record)">详情</a>-->
+<!--              </a-menu-item>-->
+<!--              <a-menu-item>-->
+<!--                <a-popconfirm title="确定删除吗?" @confirm="() => handleDelete(record.id)">-->
+<!--                  <a>删除</a>-->
+<!--                </a-popconfirm>-->
+<!--              </a-menu-item>-->
+<!--            </a-menu>-->
+<!--          </a-dropdown>-->
+<!--        </span>-->
 
       </a-table>
     </div>
@@ -113,14 +103,15 @@
             title: '地址',
             align:"center",
             dataIndex: 'address'
-          },
-         {
-          title: '操作',
-          key: 'operation',
-          align: "center",
-          width: 130,
-          scopedSlots: {customRender: 'action'},
-        }],
+          }
+        //  ,{
+        //   title: '操作',
+        //   key: 'operation',
+        //   align: "center",
+        //   width: 130,
+        //   scopedSlots: {customRender: 'action'},
+        // }
+        ],
         url: {
           list: "/mall/userAccount/listUserDetailByMainId",
           delete: "/mall/userAccount/deleteUserDetail",

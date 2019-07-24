@@ -16,4 +16,5 @@ public class WeChatConfig {
     private String tradeType;
     private String paySignKey;
     private String uniformOrder;
+    private String signType;//签名类型
 }

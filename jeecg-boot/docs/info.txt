@@ -1,6 +1,23 @@
+服务器信息：
+120.27.218.186
 root
 a1234567.
-120.27.218.186
+
+数据库：
+127.0.0.1  3306
+root 46MjNCnLDRV6Qub8
+tea_shop 46MjNCnLDRV6Qub8
+mysql -uroot -p46MjNCnLDRV6Qub8
+redis 127.0.0.1 6379
+
+小程序信息
+appId：
+mch_id;
+app_secret
 
 
-grant all on app_shop.* to 'tea_shop'@'%' identified by '46MjNCnLDRV6Qub8';
+sh start.sh -d >/dev/null 2>&1 &
+
+
+1. 新用户把商品加入购物车成功后，需要退出程序重新进入才能刷新
+10. 个人中心页面加入客服二维码

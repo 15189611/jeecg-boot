@@ -1,6 +1,5 @@
 package org.jeecg.common.util;
 
-
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
@@ -36,9 +35,6 @@ import java.util.Set;
 @Slf4j
 @Component
 public class WeChatUtils {
-//
-//    @Autowired
-//    private static SysAccessTokenService sysAccessTokenService;
 
     @Autowired
     private WeChatConfig weChatConfig;
@@ -191,7 +187,6 @@ public class WeChatUtils {
         }
         temp.append("&key=");
         temp.append(paySignKey);
-        System.out.println(temp.toString());
         String packageSign = MD5.getMessageDigest(temp.toString());
         return packageSign;
     }

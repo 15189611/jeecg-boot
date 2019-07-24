@@ -1,7 +1,7 @@
 server:
-  port: 8099
+  port: 8080
   servlet:
-    context-path: /jeecg-boot
+    context-path: /mall
     compression:
       enabled: true
       mime-types: application/javascript,application/json,application/xml,text/html,text/xml,text/plain,text/css,image/*
@@ -119,3 +119,7 @@ jeecg :
     upload: D://upFiles
     #webapp文件路径
     webapp: D://webapp
+
+mall:
+  image:
+    prefix: http://localhost:8080/mall/sys/common/view/

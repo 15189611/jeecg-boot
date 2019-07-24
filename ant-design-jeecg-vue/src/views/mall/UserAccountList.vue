@@ -64,6 +64,12 @@
         :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange,type:type}"
         @change="handleTableChange"
         :customRow="clickThenCheck">
+        <template slot="avatarslot" slot-scope="text, record, index">
+          <div class="anty-img-wrap">
+            <a-avatar shape="square" :src="getImageView(record.avatar)" icon="user"/>
+          </div>
+        </template>
+
 
         <span slot="action" slot-scope="text, record">
           <a @click="handleEdit(record)">编辑</a>
@@ -142,7 +148,8 @@
           {
             title: '头像',
             align:"center",
-            dataIndex: 'avatar'
+            dataIndex: 'avatar',
+            scopedSlots: {customRender: "avatarslot"}
           },
           {
             title: '是否锁定: 0/锁定,1/正常',

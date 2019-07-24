@@ -345,6 +345,38 @@ public class OrderApiController {
 
         return result;
     }
+
+
+
+    @PostMapping(value = "/orderCount")
+    public Result orderCount(Order req) {
+        Result result = new Result<>();
+
+        if(StringUtils.isEmpty(req.getUserId())){
+            //订单异常
+            result.setCode(1);
+            return result;
+        }
+
+        RespOrderCountVO vo = new RespOrderCountVO();
+        Page<Order> page = new Page<>(1, 100);
+        IPage<Order> pageList;
+        pageList = orderService.queryOrderByUserIdAndStatus(page, req.getUserId(),1);
+        vo.setStatus1(pageList.getRecords().size());
+        pageList = orderService.queryOrderByUserIdAndStatus(page, req.getUserId(),2);
+        vo.setStatus2(pageList.getRecords().size());
+        pageList = orderService.queryOrderByUserIdAndStatus(page, req.getUserId(),3);
+        vo.setStatus3(pageList.getRecords().size());
+        pageList = orderService.queryOrderByUserIdAndStatus(page, req.getUserId(),4);
+        vo.setStatus4(pageList.getRecords().size());
+
+        result.setCode(0);
+        result.setResult(vo);
+        result.setSuccess(true);
+
+        return result;
+    }
+
    /**
      *  编辑
     * @param orderPage

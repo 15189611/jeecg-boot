@@ -36,17 +36,18 @@
           </a-select>
 
         </a-form-item>
-        <a-form-item
-          :labelCol="labelCol"
-          :wrapperCol="wrapperCol"
-          label="优惠价">
-          <a-input-number v-decorator="[ 'discountPrice', validatorRules.discountPrice ]" />
-        </a-form-item>
+
         <a-form-item
           :labelCol="labelCol"
           :wrapperCol="wrapperCol"
           label="销售价">
           <a-input-number v-decorator="[ 'sellingPrice', validatorRules.sellingPrice ]" />
+        </a-form-item>
+        <a-form-item
+          :labelCol="labelCol"
+          :wrapperCol="wrapperCol"
+          label="原价格">
+          <a-input-number v-decorator="[ 'discountPrice', validatorRules.discountPrice ]" />
         </a-form-item>
         <a-form-item
           :labelCol="labelCol"
